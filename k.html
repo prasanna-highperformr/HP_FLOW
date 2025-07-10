@@ -1,0 +1,144 @@
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+const isMobile = window.screen.orientation.type.includes("portrait") && window.innerWidth <= 768;
+	if(!isMobile){
+    setTimeout(() => {
+        const popupWrap = document.querySelector('.demo-popup_wrap');
+        if (popupWrap) {
+            popupWrap.style.display = 'flex';
+        }
+        const closeBtn = document.querySelector('.demo-popup_close-btn');
+// Handle close button click
+      closeBtn.addEventListener('touchstart', () => {
+          console.log('coming>>>');
+          popup.style.display = 'none';
+      });
+    }, 15000);
+    } 
+    
+const faqLists = document.querySelectorAll(".workflow-faq .dd-faq-list");
+const faqContainer = document.querySelector(".workflow-faq");
+const images = document.querySelectorAll(".faq-images .faq-image");
+
+console.log("opened the log " , faqLists);
+
+let current = 0;
+let intervalId;
+let progressIntervalId;
+
+function showImageByIndex(index) {
+  images.forEach((img, i) => {
+    if (i === index) {
+      img.classList.add("active");
+    } else {
+      img.classList.remove("active");
+    }
+  });
+}
+
+
+if (faqLists) {
+  setBorderProgress(faqLists[0]);
+  faqLists[0].classList.add("w--open");
+  showImageByIndex(0);
+}
+
+function closeAllFAQs() {
+  faqLists.forEach(faq => {
+    const parent = faq.closest(".border-animate");
+    faq.classList.remove("w--open");
+    if (parent) { 
+      parent.classList.remove("is-visible");
+      parent.style.setProperty("--progress-opacity", "0");
+      parent.style.setProperty("--progress", "0%");
+    }
+  });
+}
+
+function setBorderProgress(faqItem) {
+  const parent = faqItem.closest(".border-animate");
+  if (!parent) return;
+
+  let progress = 0;
+  clearInterval(progressIntervalId);
+  parent.style.setProperty("--progress-opacity", "1"); 
+  parent.classList.add("is-visible");  
+  parent.style.setProperty("--progress", "5%");
+
+  progressIntervalId = setInterval(() => {
+    progress += 10;
+    if (progress > 100) {
+      clearInterval(progressIntervalId);
+    } else {
+      parent.style.setProperty("--progress", `${progress}%`);
+    }
+  }, 1000);
+}
+
+function openNextFAQ() {
+  closeAllFAQs();
+  if (faqLists[current]) {
+    setBorderProgress(faqLists[current]); 
+    faqLists[current].classList.add("w--open"); 
+    showImageByIndex(current);
+  }
+  current = (current + 1) % faqLists.length;
+}
+
+function startAutoRotate() {
+  intervalId = setInterval(openNextFAQ, 10000);
+}
+
+function stopAutoRotate() {
+  clearInterval(intervalId);
+  clearInterval(progressIntervalId);
+}
+
+// Start autoplay
+openNextFAQ();
+startAutoRotate();
+
+// Event delegation on parent
+faqContainer.addEventListener("click", function (e) {
+  const clickedFAQ = e.target.closest(".dd-faq-list");
+  if (clickedFAQ && faqContainer.contains(clickedFAQ)) {
+    stopAutoRotate();
+    closeAllFAQs();
+    clickedFAQ.classList.add("w--open");
+    setBorderProgress(clickedFAQ);
+
+    current = Array.from(faqLists).indexOf(clickedFAQ) + 1;
+    if (current >= faqLists.length) current = 0;
+
+    // Restart autoplay after 10 seconds
+    setTimeout(() => {
+      openNextFAQ();
+      startAutoRotate();
+    }, 10000);
+  }
+});
+
+    // for view more section
+const trigger = document.getElementById("view-more");
+const heading = document.getElementById("view-more-heading");
+const chevron = document.getElementById("view-chev");
+const targets = document.querySelectorAll(".hide-view");
+
+trigger.addEventListener("click", function () {
+ 	const isCurrentlyHidden = heading.textContent.trim().toLowerCase() === "view more";
+    targets.forEach(el => {
+      if (isCurrentlyHidden) {
+        el.classList.remove("hide-view"); // Show
+        chevron.classList.add("r-180");
+      } else {
+        el.classList.add("hide-view"); // Hide
+        chevron.classList.remove("r-180");
+      }
+    });
+
+    // Change heading text only
+    heading.textContent = isCurrentlyHidden ? "show less" : "view more";
+  });
+
+});
+</script>

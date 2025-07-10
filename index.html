@@ -1,0 +1,63 @@
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const faqLists = document.querySelectorAll(".workflow-faq .dd-faq-list");
+    const faqContainer = document.querySelector(".workflow-faq");
+    let current = 0;
+    let intervalId;
+
+    function closeAllFAQs() {
+      faqLists.forEach(faq => faq.classList.remove("w--open"));
+    }
+
+    function openNextFAQ() {
+      closeAllFAQs();
+      if (faqLists[current]) {
+        faqLists[current].classList.add("w--open");
+      }
+      current = (current + 1) % faqLists.length;
+    }
+
+    function startAutoRotate() {
+      intervalId = setInterval(openNextFAQ, 10000);
+    }
+
+    function stopAutoRotate() {
+      clearInterval(intervalId);
+    }
+
+    // Start autoplay
+    openNextFAQ();
+    startAutoRotate();
+
+    // Event delegation on parent
+    faqContainer.addEventListener("click", function (e) {
+      const clickedFAQ = e.target.closest(".dd-faq-list");
+      if (clickedFAQ && faqContainer.contains(clickedFAQ)) {
+        stopAutoRotate();
+        closeAllFAQs();
+        clickedFAQ.classList.add("w--open");
+
+        // Update index to rotate from the next item
+        current = Array.from(faqLists).indexOf(clickedFAQ) + 1;
+        if (current >= faqLists.length) current = 0;
+
+        // Restart autoplay after 10 seconds
+        setTimeout(startAutoRotate, 10000);
+      }
+    });
+
+
+    // Event delegation on parent
+    // faqContainer.addEventListener("click", function (e) {
+    //   const clickedFAQ = e.target.closest(".dd-faq-list");
+    //   closeAllFAQs();
+    //   if (clickedFAQ && faqContainer.contains(clickedFAQ)) { 
+    //     clickedFAQ.classList.add("w--open");
+    //   }
+    // });
+  });
+</script>  
+
+
+
+<!-- open animation in 
